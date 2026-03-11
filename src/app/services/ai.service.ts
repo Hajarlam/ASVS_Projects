@@ -30,7 +30,7 @@ export class AiService {
 
   
   private readonly apiKeys: string[] = [
-    'AIzaSyCZz6paDPqNro-EppiCDQQHS1QB7ZEtZW4', // clé 1 — remplacer si épuisée
+    'AIzaSyCzfQGh1AnjeoQOx91pgbwJPYT4hKqy1c0', // clé 1 — remplacer si épuisée
     // 'AIzaSyCZz6paDPqNro-EppiCDQQHS1QB7ZEtZW4',                // clé 2 — décommenter et ajouter
   ];
   private currentKeyIndex = 0;
