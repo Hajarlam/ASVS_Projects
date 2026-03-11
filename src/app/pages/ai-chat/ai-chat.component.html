@@ -1,0 +1,216 @@
+<div class="chat-page" [class.sidebar-closed]="!sidebarOpen">
+
+  <!-- Sidebar toggle button -->
+  <button class="sidebar-toggle-btn" (click)="toggleSidebar()"
+    [title]="sidebarOpen ? 'Fermer le panneau' : 'Ouvrir le panneau'">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      @if (sidebarOpen) {
+      <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      } @else {
+      <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      }
+    </svg>
+  </button>
+
+  <!-- Sidebar -->
+  <aside class="chat-sidebar" [class.open]="sidebarOpen">
+    <div class="sidebar-header">
+      <div class="ai-avatar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="url(#avatarGrad)" />
+          <path d="M9 9h6M9 12h6M9 15h4" stroke="white" stroke-width="1.5" stroke-linecap="round" />
+          <defs>
+            <linearGradient id="avatarGrad" x1="2" y1="2" x2="22" y2="22">
+              <stop stop-color="var(--accent-rose)" />
+              <stop offset="1" stop-color="var(--accent-purple)" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="ai-info">
+        <span class="ai-name">Assistant IA</span>
+        <span class="ai-status"><span class="status-dot"></span>Gemini 2.5 Flash</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="sidebar-label">Actions rapides</p>
+      @for (s of suggestions; track s) {
+      <button class="suggestion-btn" (click)="useSuggestion(s)">{{ s }}</button>
+      }
+    </div>
+
+    <div class="sidebar-section">
+      <p class="sidebar-label">Session</p>
+      <div class="session-info">
+        <span>Messages</span>
+        <span class="session-val">{{ messages.length }}</span>
+      </div>
+      <div class="session-info">
+        <span>Contexte</span>
+        <span class="session-val">{{ history.length / 2 | number:'1.0-0' }} échanges</span>
+      </div>
+    </div>
+
+    <button class="clear-btn" (click)="clearChat()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      Effacer la conversation
+    </button>
+  </aside>
+
+  <!-- Chat area -->
+  <main class="chat-main" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+
+    @if (isDragging) {
+    <div class="drag-overlay">
+      <div class="drag-overlay-content">
+        <div class="drag-icon">📁</div>
+        <h2>Déposez votre fichier de code ici</h2>
+        <p>L'IA scannera automatiquement les vulnérabilités</p>
+      </div>
+    </div>
+    }
+
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="header-icon">✦</div>
+        <div>
+          <h1>Chat IA Sécurité</h1>
+          <p>Posez vos questions sur OWASP ASVS, le codage sécurisé et les vulnérabilités</p>
+        </div>
+      </div>
+      <div class="chat-header-right">
+        <label class="speed-toggle" title="Priorise les réponses courtes">
+          <input type="checkbox" [(ngModel)]="fastMode" />
+          <span>Réponse rapide</span>
+        </label>
+        <div class="header-badge">
+          <span class="badge-dot"></span>
+          En ligne
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages-container" #messagesContainer>
+      @for (msg of messages; track msg.id; let i = $index) {
+      <div class="message-wrap" [class.user-wrap]="msg.role === 'user'">
+        @if (msg.role === 'model') {
+        <div class="msg-avatar model-avatar">✦</div>
+        }
+        <div class="message-bubble" [class.user-bubble]="msg.role === 'user'"
+          [class.model-bubble]="msg.role === 'model'">
+          @if (msg.loading) {
+          <div class="typing-indicator">
+            <span></span><span></span><span></span>
+          </div>
+          } @else {
+          @for (seg of parseMessage(msg.text); track seg.content; let bi = $index) {
+          @if (seg.type === 'text') {
+          <div class="msg-text" [innerHTML]="formatText(seg.content)"></div>
+          }
+          @if (seg.type === 'code') {
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">{{ seg.language }}</span>
+              <div class="code-actions">
+                <button class="code-btn" (click)="copyCode(seg.content, msg.id + '-' + bi)"
+                  [class.copied]="copiedId === msg.id + '-' + bi">
+                  @if (copiedId === msg.id + '-' + bi) {
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+                  </svg>
+                  Copié !
+                  } @else {
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor"
+                      stroke-width="2" />
+                  </svg>
+                  Copier
+                  }
+                </button>
+                <button class="code-btn download"
+                  (click)="downloadCode(seg.content, seg.language || 'txt', msg.id, bi)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 3v13M7 11l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <path d="M3 21h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                  Télécharger
+                </button>
+              </div>
+            </div>
+            <pre class="code-content"><code>{{ seg.content }}</code></pre>
+          </div>
+          }
+          }
+          }
+          <div class="msg-footer">
+            <span class="msg-time">{{ formatTime(msg.timestamp) }}</span>
+            @if (msg.role === 'model' && !msg.loading) {
+            <button class="copy-msg-btn" (click)="copyFullMessage(msg.text, msg.id)"
+              [class.copied]="copiedId === msg.id + '-full'" title="Copier la réponse complète">
+              @if (copiedId === msg.id + '-full') {
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+              </svg>
+              Copié
+              } @else {
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2" />
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2" />
+              </svg>
+              Copier
+              }
+            </button>
+            }
+          </div>
+        </div>
+        @if (msg.role === 'user') {
+        <div class="msg-avatar user-avatar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+    <!-- Input area -->
+    <div class="input-area">
+      <div class="input-wrap">
+        <button class="attach-btn" (click)="triggerFileInput()" [disabled]="isLoading"
+          title="Scanner un fichier source">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <input type="file" #fileInputEl style="display: none;" (change)="onFileSelected($event)"
+          accept=".js,.ts,.py,.php,.java,.cs,.go,.rb,.c,.cpp,.html,.css,.sql,.json">
+
+        <textarea #inputEl class="chat-input" [(ngModel)]="inputText" (keydown)="onKeyDown($event)"
+          placeholder="Posez votre question ou attachez un fichier de code à scanner..." rows="1"
+          [disabled]="isLoading"></textarea>
+        <button class="send-btn" (click)="sendMessage()" [disabled]="isLoading || !inputText.trim()">
+          @if (isLoading) {
+          <span class="send-spin"></span>
+          } @else {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" />
+          </svg>
+          }
+        </button>
+      </div>
+      <p class="input-hint">Appuyez sur <kbd>Entrée</kbd> pour envoyer · <kbd>Maj+Entrée</kbd> pour une nouvelle ligne
+      </p>
+    </div>
+
+  </main>
+</div>

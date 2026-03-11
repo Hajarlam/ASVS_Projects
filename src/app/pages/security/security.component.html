@@ -1,0 +1,482 @@
+<div class="security-page">
+  <div class="page-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="router.navigate(['/dashboard'])">&larr; Retour</button>
+      <div class="page-title-wrap">
+        <div class="page-icon">SEC</div>
+        <div>
+          <h1 class="page-title">Centre de Securite</h1>
+          <p class="page-subtitle">Scanner de code | Copilote MCP | Statut backend</p>
+        </div>
+      </div>
+    </div>
+    <div class="backend-badge" [class.active]="isBackend">
+      <span class="badge-dot"></span>
+      {{ isBackend ? 'Backend JWT actif' : 'Mode local' }}
+    </div>
+  </div>
+
+  <!-- ══ SECTION 1 : Scanner de code ══ -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <span class="section-divider-label">Scanner de code</span>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <div class="tab-content">
+    <div class="scanner-layout">
+      <div class="scanner-input-panel">
+        <div class="panel-header">
+          <span class="panel-title">Code a analyser</span>
+          <div class="lang-select-wrap">
+            <select class="lang-select" [(ngModel)]="language">
+              @for (lang of languages; track lang) {
+              <option [value]="lang">{{ lang }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <textarea class="code-input" [(ngModel)]="code" placeholder="// Collez votre code ici...
+// Exemple:
+function login(user, pass) {
+  const query = 'SELECT * FROM users WHERE user='' + user + '''
+  return db.query(query)
+}" spellcheck="false"></textarea>
+        <div class="scanner-actions">
+          <button class="btn-scan" (click)="scanCode()" [disabled]="!code.trim() || scanning">
+            @if (scanning) {
+            <span class="spin"></span> Analyse en cours...
+            } @else {
+            Analyser le code
+            }
+          </button>
+          <button class="btn-clear" (click)="clearScanner()" [disabled]="!code && !scanResult">
+            Effacer
+          </button>
+        </div>
+      </div>
+
+      <div class="scanner-result-panel">
+        <div class="panel-header">
+          <span class="panel-title">Resultat de l analyse</span>
+          @if (scanResult) {
+          <span class="result-badge">Analyse terminee</span>
+          }
+        </div>
+
+        @if (!scanResult && !scanning) {
+        <div class="result-empty">
+          <div class="empty-icon">Scan</div>
+          <p>Collez du code et cliquez sur <strong>Analyser</strong></p>
+          <p class="empty-sub">L IA detecte les vulnerabilites OWASP ASVS</p>
+        </div>
+        }
+
+        @if (scanning) {
+        <div class="result-loading">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+          <p>Analyse IA en cours...</p>
+        </div>
+        }
+
+        @if (scanResult && !scanning) {
+        <div class="result-content">
+          @for (seg of parseResult(scanResult); track seg.content; let i = $index) {
+          @if (seg.type === 'text') {
+          <div class="result-text" [innerHTML]="formatText(seg.content)"></div>
+          }
+          @if (seg.type === 'code') {
+          <div class="result-code-block">
+            <div class="code-block-header">
+              <span class="code-lang">{{ seg.language }}</span>
+              <button class="copy-btn" (click)="copyCode(seg.content, i)" [class.copied]="copiedIdx === i">
+                {{ copiedIdx === i ? 'Copie' : 'Copier' }}
+              </button>
+            </div>
+            <pre class="code-pre"><code>{{ seg.content }}</code></pre>
+          </div>
+          }
+          }
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 2 : MCP GitHub ══ -->
+  <div class="section-divider" id="mcp">
+    <div class="section-divider-line"></div>
+    <span class="section-divider-label">MCP GitHub</span>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <div class="tab-content">
+    <div class="mcp-runner-card mcp-pro-card">
+
+      <!-- Header: titre + chip côte à côte -->
+      <div class="mcp-inline-header">
+        <div class="mcp-inline-meta">
+          <p class="mcp-eyebrow">Copilote Cybersecurite</p>
+          <h2 class="mcp-inline-title">Scan GitHub via MCP</h2>
+          <p class="mcp-inline-desc">
+            Entrez uniquement le lien GitHub. Le backend MCP clone le repository puis produit
+            une analyse de vulnerabilites avec correctifs prioritaires.
+          </p>
+        </div>
+        <div class="mcp-tool-chip">Tool: scan_repository</div>
+      </div>
+
+      <!-- Séparateur -->
+      <div class="mcp-inline-sep"></div>
+
+      <!-- Formulaire directement ici -->
+      <div class="repo-scan-form">
+        <div class="field">
+          <label>Lien GitHub du repository</label>
+          <div class="mcp-input-row">
+            <input type="text" [(ngModel)]="repoUrl" placeholder="https://github.com/owner/repo" />
+            <button class="btn-scan btn-scan-inline" (click)="runRepoScan()" [disabled]="mcpRunning || !repoUrl.trim()">
+              @if (mcpRunning) {
+              <span class="spin"></span> {{ loadingMsg || 'Scan en cours…' }}
+              } @else {
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              Scanner
+              }
+            </button>
+            <button class="btn-clear" (click)="clearRepoScanOutput()"
+              [disabled]="mcpRunning || (!mcpResult && !mcpError)">
+              Effacer
+            </button>
+          </div>
+        </div>
+
+        @if (!isMcpBackendRoute) {
+        <p class="mcp-info-badge">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.5" />
+            <path d="M10 9v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            <circle cx="10" cy="6.5" r="0.9" fill="currentColor" />
+          </svg>
+          {{ isBackend
+          ? 'Session locale active — reconnectez-vous pour activer le mode MCP complet.'
+          : 'Mode local — analyse IA disponible. Backend optionnel pour le scan MCP natif.' }}
+        </p>
+        }
+      </div>
+    </div>
+
+    @if (mcpRunning) {
+    <div class="scan-loading-zone fade-in">
+      <div class="scan-loading-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="scan-loading-msg">{{ loadingMsg || 'Analyse en cours…' }}</p>
+      <p class="scan-loading-sub">Cela peut prendre 5 à 15 secondes selon la taille du repository</p>
+    </div>
+    }
+
+    @if (mcpRunning || scanStep >= 0 || mcpResult) {
+    <!-- Tracker -->
+    <div class="mcp-tracker-wrap fade-in">
+      <div class="mcp-progress-bg">
+        <div class="mcp-progress-fill" [style.width.%]="(scanStep >= 0 ? (scanStep / scanSteps.length) * 100 : 0)">
+        </div>
+      </div>
+      <div class="mcp-steps-grid">
+        @for (step of scanSteps; track step.id; let i = $index) {
+        <div class="mcp-step" [class.done]="scanStep > i || scanComplete"
+          [class.active]="scanStep === i && !scanComplete">
+          <div class="mcp-step-icon">
+            @switch (step.id) {
+            @case ('clone') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 3v12" />
+              <circle cx="18" cy="6" r="3" />
+              <circle cx="6" cy="18" r="3" />
+              <path d="M18 9a9 9 0 0 1-9 9" />
+            </svg> }
+            @case ('static') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg> }
+            @case ('deps') { <span class="txt-icon">&gt;_</span> }
+            @case ('secrets') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg> }
+            @case ('config') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="6" rx="2" ry="2" />
+              <rect x="4" y="14" width="16" height="6" rx="2" ry="2" />
+              <line x1="8" y1="7" x2="8" y2="7" />
+              <line x1="8" y1="17" x2="8" y2="17" />
+            </svg> }
+            @case ('ai') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z" />
+              <path
+                d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z" />
+            </svg> }
+            }
+          </div>
+          <div class="mcp-step-label">{{ step.label }}</div>
+          <div class="mcp-step-status">
+            @if (scanStep > i || scanComplete) { <span class="mcp-step-check">✓</span> }
+            @else if (scanStep === i && !scanComplete) { <span class="mcp-step-pulse"></span> }
+            @else { <span class="mcp-step-idle">—</span> }
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    @if (scanComplete && !mcpRunning) {
+    <div class="mcp-metrics-row fade-in">
+      <div class="mcp-metric">
+        <span class="mcp-metric-num">{{ metrics.files }}</span>
+        <span class="mcp-metric-lbl">Fichiers</span>
+      </div>
+      <div class="mcp-metric">
+        <span class="mcp-metric-num">{{ metrics.loc | number }}</span>
+        <span class="mcp-metric-lbl">Lignes</span>
+      </div>
+      <div class="mcp-metric danger">
+        <span class="mcp-metric-num">{{ metrics.vulns }}</span>
+        <span class="mcp-metric-lbl">Vulns</span>
+      </div>
+      <div class="mcp-metric warn">
+        <span class="mcp-metric-num">{{ metrics.secrets }}</span>
+        <span class="mcp-metric-lbl">Secrets</span>
+      </div>
+      <div class="mcp-metric warn">
+        <span class="mcp-metric-num">{{ metrics.deps }}</span>
+        <span class="mcp-metric-lbl">Deps</span>
+      </div>
+    </div>
+
+    <div class="mcv-list fade-in">
+      @for (v of vulns; track v.id) {
+      <div class="mcv-card">
+        <div class="mcv-card-header">
+          <span class="mcv-id">{{ v.id }}</span>
+          <span class="mcv-sev" [class]="v.severity.toLowerCase()">{{ v.severity }}</span>
+          <span class="mcv-cat">{{ v.category }}</span>
+          <svg class="mcv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </div>
+        <div class="mcv-title">{{ v.title }}</div>
+        <div class="mcv-desc">{{ v.desc }}</div>
+        <div class="mcv-file">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+            <polyline points="13 2 13 9 20 9" />
+          </svg>
+          {{ v.file }}
+        </div>
+      </div>
+      }
+    </div>
+    }
+
+    @if (mcpResult) {
+    <div class="mcp-runner-card mcp-pro-card fade-in" style="margin-top: 1.5rem;">
+      <div class="panel-header">
+        <span class="panel-title">Resume de l'IA MCP</span>
+      </div>
+      <div class="mcp-output">
+        <div class="result-content">
+          @for (seg of parseResult(mcpResult); track seg.content; let i = $index) {
+          @if (seg.type === 'text') {
+          <div class="result-text" [innerHTML]="formatText(seg.content)"></div>
+          }
+          @if (seg.type === 'code') {
+          <div class="result-code-block">
+            <div class="code-block-header">
+              <span class="code-lang">{{ seg.language }}</span>
+              <button class="copy-btn" (click)="copyCode(seg.content, 3000 + i)"
+                [class.copied]="copiedIdx === 3000 + i">
+                {{ copiedIdx === 3000 + i ? 'Copie' : 'Copier' }}
+              </button>
+            </div>
+            <pre class="code-pre"><code>{{ seg.content }}</code></pre>
+          </div>
+          }
+          }
+        </div>
+      </div>
+    </div>
+    }
+    }
+
+    @if (mcpError) {
+    <div class="mcp-error fade-in" style="margin-top: 1rem;">{{ mcpError }}</div>
+    }
+  </div>
+
+  <!-- ══ SECTION 3 : Statut systeme ══ -->
+  <div class="section-divider">
+    <div class="section-divider-line"></div>
+    <span class="section-divider-label">Statut systeme</span>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <div class="tab-content">
+    <div class="status-grid">
+      <div class="status-card" [class.ok]="isBackend" [class.offline]="!isBackend">
+        <div class="status-card-header">
+          <span class="status-title">Backend Express</span>
+          <span class="status-dot" [class.green]="isBackend" [class.red]="!isBackend"></span>
+        </div>
+        <div class="status-value">{{ isBackend ? 'En ligne' : 'Hors ligne' }}</div>
+        <div class="status-desc">
+          {{ isBackend ? 'JWT actif - Auth securisee' : 'Mode localStorage - Demarrez le backend' }}
+        </div>
+        @if (!isBackend) {
+        <code class="status-cmd">cd backend && npm install && npm start</code>
+        }
+      </div>
+
+      <div class="status-card" [class.ok]="mcpStatus" [class.offline]="!mcpStatus">
+        <div class="status-card-header">
+          <span class="status-title">MCP Server</span>
+          <span class="status-dot" [class.green]="mcpStatus" [class.red]="!mcpStatus"></span>
+        </div>
+        @if (loadingStatus) {
+        <div class="status-value">Verification...</div>
+        } @else if (mcpStatus) {
+        <div class="status-value">{{ mcpStatus.status }}</div>
+        <div class="status-tools">
+          @for (tool of mcpStatus.tools; track tool) {
+          <span class="tool-badge">{{ tool }}</span>
+          }
+        </div>
+        } @else {
+        <div class="status-value">Inactif</div>
+        <div class="status-desc">MCP disponible quand le backend est actif</div>
+        }
+      </div>
+
+      <div class="status-card ok">
+        <div class="status-card-header">
+          <span class="status-title">Authentification</span>
+          <span class="status-dot green"></span>
+        </div>
+        <div class="status-value">{{ isBackend ? 'JWT + bcrypt' : 'Mode local' }}</div>
+        <div class="status-desc">
+          @if (isBackend) {
+          Tokens signes - Hash bcrypt (salt 12) - Rate limit 5/15min
+          } @else {
+          Fallback localStorage - Activez le backend pour JWT
+          }
+        </div>
+      </div>
+
+      <div class="status-card ok">
+        <div class="status-card-header">
+          <span class="status-title">Gemini IA</span>
+          <span class="status-dot green"></span>
+        </div>
+        <div class="status-value">gemini-2.5-flash</div>
+        <div class="status-desc">Connecte via API Google GenAI</div>
+      </div>
+    </div>
+
+    <div class="security-features-card">
+      <h3 class="sf-title">Securite implementee</h3>
+      <div class="sf-grid">
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">Hachage bcrypt</div>
+            <div class="sf-desc">Salt rounds 12 - aucun mot de passe en clair</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">JWT Authentication</div>
+            <div class="sf-desc">Tokens signes HS256, expiration 24h, revocation</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">Rate Limiting</div>
+            <div class="sf-desc">5 tentatives login / 15 min par IP</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">Account Lockout</div>
+            <div class="sf-desc">Blocage 15 min apres 5 echecs consecutifs</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">Helmet Headers</div>
+            <div class="sf-desc">CSP, HSTS, X-Frame-Options, etc.</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">CORS securise</div>
+            <div class="sf-desc">Origines autorisees explicitement</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">Auth Guard Angular</div>
+            <div class="sf-desc">Protection de toutes les routes privees</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">MCP Protocol</div>
+            <div class="sf-desc">Outils IA via Model Context Protocol</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">Token Blacklist</div>
+            <div class="sf-desc">Revocation immediate a la deconnexion</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">Timing-Safe Login</div>
+            <div class="sf-desc">Delai constant contre l enumeration des users</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">Roles Admin/User</div>
+            <div class="sf-desc">RBAC complet avec verification backend</div>
+          </div>
+        </div>
+        <div class="sf-item implemented">
+          <span class="sf-icon">OK</span>
+          <div>
+            <div class="sf-name">SSR Safe</div>
+            <div class="sf-desc">isPlatformBrowser sur tous les acces browser API</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

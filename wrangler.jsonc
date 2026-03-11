@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // worker name must match repository/CI expectations
+  "name": "asvs-enhanced",
+  "compatibility_date": "2025-09-27",
+  // enable nodejs compatibility to resolve built-in modules used by express/
+  // Angular SSR. without this flag the build will complain about "fs",
+  // "path", "crypto", etc.
+  "compatibility_flags": ["nodejs_compat"],
+  "build": {
+    "command": "npm run build",
+    "cwd": "."
+  },
+  "upload": {
+    "format": "modules"                    // treat entry as ES module worker
+  },
+  "assets": {
+    "directory": "dist/asvs-security-app/browser"
+  }
+}

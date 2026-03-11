@@ -1,0 +1,61 @@
+<div class="search-results">
+  <div class="header">
+    <button class="back-btn" (click)="goBack()">← Retour</button>
+    <h1>{{ pageTitle }}</h1>
+  </div>
+
+  @if (loading) {
+    <div class="loading"><app-loading-spinner></app-loading-spinner></div>
+  }
+
+  @if (!loading && results.length === 0) {
+    <div class="no-results">
+      <p>Aucune exigence trouvée pour "{{ searchTerm }}"</p>
+    </div>
+  }
+
+  @if (!loading && results.length > 0) {
+    <div class="results-header">
+      <div class="results-count">Trouvé <span>{{ results.length }}</span> exigence(s)</div>
+      <div class="page-size-wrap">
+        <select [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="page-size-select">
+          @for (s of pageSizes; track s) {
+            <option [value]="s">{{ s }} / page</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="results-list">
+      @for (req of pagedResults; track req.id) {
+        <div class="result-item" (click)="goToRequirement(req.id)">
+          <span class="req-id">{{ req.id }}</span>
+          <h3>{{ req.area }}</h3>
+          <p>{{ req.verificationRequirement }}</p>
+          <div class="req-meta">
+            <span class="level-badge level-{{ req.asvsLevel }}">Niveau {{ req.asvsLevel }}</span>
+            @if (req.cwe) { <span class="cwe-tag">CWE: {{ req.cwe }}</span> }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <div class="pagination-wrap">
+        <div class="pagination-info">Page {{ currentPage }} sur {{ totalPages }}</div>
+        <div class="pagination">
+          <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">← Précédent</button>
+          @for (page of pages; track $index) {
+            @if (page === -1) {
+              <span class="page-dots">…</span>
+            } @else {
+              <button class="page-btn page-num" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
+            }
+          }
+          <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Suivant →</button>
+        </div>
+      </div>
+    }
+  }
+</div>

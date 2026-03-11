@@ -1,0 +1,220 @@
+<div class="dashboard" [attr.data-lang]="lang">
+
+  <!-- Language Toggle -->
+  <div class="lang-toggle">
+    <button class="lang-btn" [class.active]="lang === 'fr'" (click)="setLang('fr')">FR</button>
+    <div class="lang-divider"></div>
+    <button class="lang-btn" [class.active]="lang === 'en'" (click)="setLang('en')">EN</button>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero animate-in">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      <span>{{ t('hero.eyebrow') }}</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="title-line1">{{ t('hero.title1') }}</span>
+      <span class="title-line2">{{ t('hero.title2') }}</span>
+    </h1>
+    <p class="hero-subtitle">{{ t('hero.subtitle') }}</p>
+    <div class="hero-actions">
+      <!-- PDF Report button -->
+      <button class="btn-primary" (click)="generatePDF()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        {{ t('hero.pdf') }}
+      </button>
+
+      <!-- MCP GitHub Scan button -->
+      <button class="btn-mcp" (click)="router.navigate(['/security'], { fragment: 'mcp' })">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        {{ t('hero.mcp') }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  @if (stats) {
+  <div class="stats-row">
+    <div class="stat-pill total">
+      <div class="stat-pill-inner">
+        <span class="stat-num">{{ stats.total }}</span>
+        <span class="stat-lbl">{{ t('stats.total') }}</span>
+      </div>
+      <div class="stat-ring total-ring">
+        <svg viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="113 113"
+            stroke-linecap="round" />
+        </svg>
+      </div>
+    </div>
+    <div class="stat-pill pass">
+      <div class="stat-pill-inner">
+        <span class="stat-num">{{ stats.passed }}</span>
+        <span class="stat-lbl">{{ t('stats.pass') }}</span>
+      </div>
+      <div class="stat-ring">
+        <svg viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3" />
+          <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" stroke-width="3"
+            [attr.stroke-dasharray]="(stats.total > 0 ? (stats.passed/stats.total*113) : 0) + ' 113'"
+            stroke-linecap="round" transform="rotate(-90 22 22)" />
+        </svg>
+      </div>
+    </div>
+    <div class="stat-pill fail">
+      <div class="stat-pill-inner">
+        <span class="stat-num">{{ stats.failed }}</span>
+        <span class="stat-lbl">{{ t('stats.fail') }}</span>
+      </div>
+      <div class="stat-ring">
+        <svg viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3" />
+          <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" stroke-width="3"
+            [attr.stroke-dasharray]="(stats.total > 0 ? (stats.failed/stats.total*113) : 0) + ' 113'"
+            stroke-linecap="round" transform="rotate(-90 22 22)" />
+        </svg>
+      </div>
+    </div>
+    <div class="stat-pill na">
+      <div class="stat-pill-inner">
+        <span class="stat-num">{{ stats.na }}</span>
+        <span class="stat-lbl">{{ t('stats.na') }}</span>
+      </div>
+      <div class="stat-ring">
+        <svg viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3" />
+          <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" stroke-width="3"
+            [attr.stroke-dasharray]="(stats.total > 0 ? (stats.na/stats.total*113) : 0) + ' 113'" stroke-linecap="round"
+            transform="rotate(-90 22 22)" />
+        </svg>
+      </div>
+    </div>
+    <div class="stat-pill pending">
+      <div class="stat-pill-inner">
+        <span class="stat-num">{{ stats.notTested }}</span>
+        <span class="stat-lbl">{{ t('stats.pending') }}</span>
+      </div>
+      <div class="stat-ring">
+        <svg viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3" />
+          <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" stroke-width="3"
+            [attr.stroke-dasharray]="(stats.total > 0 ? (stats.notTested/stats.total*113) : 0) + ' 113'"
+            stroke-linecap="round" transform="rotate(-90 22 22)" />
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-block">
+    <div class="progress-meta">
+      <span class="progress-title">{{ t('progress.label') }}</span>
+      <span class="progress-score">{{ getGlobalProgress() | number:'1.0-0' }}<sup>%</sup></span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-segment seg-pass" [style.width.%]="stats.total > 0 ? (stats.passed / stats.total * 100) : 0">
+      </div>
+      <div class="progress-segment seg-fail" [style.width.%]="stats.total > 0 ? (stats.failed / stats.total * 100) : 0">
+      </div>
+      <div class="progress-segment seg-na" [style.width.%]="stats.total > 0 ? (stats.na / stats.total * 100) : 0"></div>
+    </div>
+    <div class="progress-legend">
+      <span class="legend-dot pass">{{ t('stats.pass') }}</span>
+      <span class="legend-dot fail">{{ t('stats.fail') }}</span>
+      <span class="legend-dot na">{{ t('stats.na') }}</span>
+      <span class="legend-dot pending">{{ t('stats.pending') }}</span>
+    </div>
+  </div>
+  } @else {
+  <div class="skeleton-state">
+    <div class="skeleton-bar"></div>
+    <div class="skeleton-bar short"></div>
+  </div>
+  }
+
+  <!-- Categories -->
+  <div class="section-header">
+    <div class="section-label">
+      <div class="section-accent"></div>
+      <span>{{ t('sections.categories') }}</span>
+    </div>
+    <span class="section-chip">{{ categories.length }} {{ t('sections.domains') }}</span>
+  </div>
+
+  <div class="categories-grid">
+    @for (category of categories; track category.key; let i = $index) {
+    <div class="cat-card" [style.--delay]="(i * 0.05) + 's'" (click)="goToCategory(category.key)">
+      <div class="cat-card-bg" [style.--cat-color]="category.color"></div>
+      <div class="cat-card-content">
+        <div class="cat-header">
+          <div class="cat-icon-wrap" [style.background]="category.color + '18'">
+            <span class="cat-icon-emoji">{{ category.icon }}</span>
+          </div>
+          <div class="cat-meta">
+            <span class="cat-total-badge">{{ categoryCounts.get(category.key) || 0 }}</span>
+            @if (getCategoryPassCount(category.key) > 0) {
+            <span class="cat-pass-badge">{{ getCategoryPassCount(category.key) }} ✓</span>
+            }
+          </div>
+        </div>
+        <div class="cat-body">
+          <h3 class="cat-title">{{ category.name }}</h3>
+          <p class="cat-desc">{{ category.description }}</p>
+        </div>
+        <div class="cat-footer">
+          <div class="cat-bar-wrap">
+            <div class="cat-bar-track">
+              <div class="cat-bar-fill" [style.background]="category.color"
+                [style.width.%]="getCategoryProgress(category.key)"></div>
+            </div>
+            <span class="cat-pct">{{ getCategoryProgress(category.key) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="cat-arrow-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- Recent -->
+  @if (recentRequirements.length > 0) {
+  <div class="section-header">
+    <div class="section-label">
+      <div class="section-accent"></div>
+      <span>{{ t('sections.recent') }}</span>
+    </div>
+  </div>
+  <div class="recent-grid">
+    @for (req of recentRequirements; track req.id) {
+    <div class="recent-item" (click)="goToRequirement(req.id)">
+      <div class="recent-id-col">
+        <code class="recent-id">{{ req.id }}</code>
+        @if (req.status) {
+        <span class="recent-badge" [class]="'rb-' + req.status">
+          {{ req.status === 'pass' ? '✓' : req.status === 'fail' ? '✗' : '–' }}
+        </span>
+        }
+      </div>
+      <p class="recent-text">{{ req.verificationRequirement | slice:0:90 }}…</p>
+      <svg class="recent-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+    </div>
+    }
+  </div>
+  }
+
+</div>

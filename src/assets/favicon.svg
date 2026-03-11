@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff3d87"/>
+      <stop offset="100%" stop-color="#c44dff"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a0a2e"/>
+      <stop offset="100%" stop-color="#0d0618"/>
+    </linearGradient>
+  </defs>
+  <!-- Background rounded square -->
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- Border glow -->
+  <rect width="64" height="64" rx="14" fill="none" stroke="rgba(255,106,170,0.4)" stroke-width="2"/>
+  <!-- Shield -->
+  <path d="M32 8L14 17V28C14 39.5 22 50 32 53C42 50 50 39.5 50 28V17L32 8Z" fill="url(#lg)" opacity="0.9"/>
+  <!-- Checkmark -->
+  <path d="M24 30L29.5 36L40 24" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

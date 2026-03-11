@@ -1,0 +1,229 @@
+.search-results {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  border-radius: 8px;
+  transition: color 0.2s;
+  font-family: 'Outfit', sans-serif;
+}
+
+.back-btn:hover {
+  color: var(--accent-pink);
+}
+
+.header h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.header h1 em {
+  color: var(--accent-pink);
+  font-style: normal;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  background: var(--bg-card);
+  border: 1.5px solid var(--bg-card-border);
+  border-radius: var(--border-radius-lg);
+  color: var(--text-muted);
+}
+
+.results-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.results-count span {
+  color: var(--accent-pink);
+  font-weight: 600;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.result-item {
+  background: var(--bg-card);
+  padding: 1.3rem 1.5rem;
+  border-radius: var(--border-radius);
+  border: 1.5px solid var(--bg-card-border);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.result-item:hover {
+  border-color: rgba(255, 106, 170, 0.3);
+  background: var(--bg-card-hover);
+  transform: translateX(4px);
+  box-shadow: var(--glow-pink);
+}
+
+.req-id {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-pink);
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  background: rgba(255, 106, 170, 0.1);
+  border: 1px solid rgba(255, 106, 170, 0.2);
+  border-radius: 5px;
+  padding: 2px 7px;
+}
+
+.result-item h3 {
+  margin: 0.4rem 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.result-item p {
+  color: var(--text-secondary);
+  margin-bottom: 0.8rem;
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.req-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.req-meta span:not(.level-badge) {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@media (max-width: 600px) {
+  .search-results {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.page-size-wrap select {
+  padding: 0.4rem 0.7rem;
+  background: var(--bg-card);
+  border: 1.5px solid var(--bg-card-border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.cwe-tag {
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 61, 135, 0.1);
+  border-radius: 5px;
+  font-size: 0.75rem;
+  color: var(--accent-rose);
+}
+
+.pagination-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 0;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pagination-info {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.page-btn {
+  padding: 0.45rem 0.85rem;
+  border-radius: 9px;
+  border: 1.5px solid var(--bg-card-border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Outfit', sans-serif;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: rgba(255, 106, 170, 0.4);
+  color: var(--text-primary);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-btn.page-num {
+  min-width: 36px;
+  text-align: center;
+}
+
+.page-btn.page-num.active {
+  background: linear-gradient(135deg, var(--accent-rose), var(--accent-purple));
+  border-color: transparent;
+  color: white;
+}
+
+.page-dots {
+  padding: 0.45rem 0.3rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}

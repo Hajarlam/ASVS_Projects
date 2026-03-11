@@ -1,0 +1,134 @@
+<div class="category-view">
+  <button class="back-btn" (click)="goBack()">← Retour au tableau de bord</button>
+
+  @if (category) {
+    <div class="category-header animate-in">
+      <div class="cat-icon-wrap" [style.background]="category.color + '20'">{{ category.icon }}</div>
+      <div class="cat-info">
+        <div class="cat-title">{{ category.name }}</div>
+        <div class="cat-subtitle">{{ category.description }}</div>
+      </div>
+    </div>
+  }
+
+  @if (requirements.length > 0) {
+    <div class="filters">
+      <div class="filter-wrap">
+        <select class="filter-select" [(ngModel)]="levelFilter" (change)="applyFilters()">
+          <option value="all">Tous les niveaux</option>
+          <option value="1">Niveau 1 — Essentiel</option>
+          <option value="2">Niveau 2 — Standard</option>
+          <option value="3">Niveau 3 — Avancé</option>
+        </select>
+      </div>
+      <div class="filter-wrap">
+        <select class="filter-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+          <option value="all">Tous les statuts</option>
+          <option value="pass">✅ Réussi</option>
+          <option value="fail">❌ Échoué</option>
+          <option value="na">➖ N/A</option>
+          <option value="none">⏳ Non testé</option>
+        </select>
+      </div>
+      <input class="search-input" type="text" placeholder="🔍 Filtrer les exigences..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+      <div class="filter-wrap">
+        <select class="filter-select" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          @for (s of pageSizes; track s) {
+            <option [value]="s">{{ s }} / page</option>
+          }
+        </select>
+      </div>
+      <button class="export-btn" (click)="exportChecklist()" title="Exporter en CSV">📥 Exporter CSV</button>
+    </div>
+  }
+
+  @if (filteredRequirements.length > 0) {
+    <div class="score-bar-wrap">
+      <div class="score-counts">
+        <span class="sc pass">✅ {{ passCount }} Réussi</span>
+        <span class="sc fail">❌ {{ failCount }} Échoué</span>
+        <span class="sc na">➖ {{ naCount }} N/A</span>
+        <span class="sc pending">⏳ {{ notTestedCount }} Non testé</span>
+        <span class="sc total">Total : {{ filteredRequirements.length }}</span>
+      </div>
+      <div class="score-bar">
+        <div class="sb-pass" [style.width.%]="filteredRequirements.length > 0 ? (passCount / filteredRequirements.length * 100) : 0"></div>
+        <div class="sb-fail" [style.width.%]="filteredRequirements.length > 0 ? (failCount / filteredRequirements.length * 100) : 0"></div>
+        <div class="sb-na" [style.width.%]="filteredRequirements.length > 0 ? (naCount / filteredRequirements.length * 100) : 0"></div>
+      </div>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading-state">Chargement des exigences...</div>
+  }
+
+  @if (!loading && requirements.length === 0) {
+    <div class="empty-state"><span class="empty-icon">🔍</span>Aucune exigence trouvée pour cette catégorie.</div>
+  }
+
+  @if (!loading && filteredRequirements.length > 0) {
+    <div class="requirements-list">
+      @for (req of pagedRequirements; track req.id; let i = $index) {
+        <div class="req-card"
+          [class.status-pass]="req.status === 'pass'"
+          [class.status-fail]="req.status === 'fail'"
+          [class.status-na]="req.status === 'na'"
+          [style.animation-delay]="(i * 0.03) + 's'">
+
+          <div class="req-top">
+            <span class="req-id">{{ req.id }}</span>
+            <span class="level-badge level-{{ req.asvsLevel }}">N{{ req.asvsLevel }}</span>
+            <span class="req-area">{{ req.area }}</span>
+            @if (req.status) {
+              <span class="status-pill" [class]="'pill-' + req.status">
+                {{ req.status === 'pass' ? '✅ Réussi' : req.status === 'fail' ? '❌ Échoué' : '➖ N/A' }}
+              </span>
+            }
+          </div>
+
+          <p class="req-text" (click)="goToRequirement(req.id)">{{ req.verificationRequirement }}</p>
+
+          <div class="req-bottom">
+            <div class="req-meta">
+              @if (req.cwe) { <span class="meta-tag cwe">CWE-{{ req.cwe }}</span> }
+              @if (req.nist) { <span class="meta-tag nist">NIST {{ req.nist }}</span> }
+            </div>
+            <div class="req-actions">
+              <div class="status-btns">
+                <button class="btn-status pass" [class.active]="req.status === 'pass'" (click)="setStatus(req, 'pass', $event)" title="Réussi">✅</button>
+                <button class="btn-status fail" [class.active]="req.status === 'fail'" (click)="setStatus(req, 'fail', $event)" title="Échoué">❌</button>
+                <button class="btn-status na" [class.active]="req.status === 'na'" (click)="setStatus(req, 'na', $event)" title="N/A">➖</button>
+              </div>
+              <button class="btn-ai" (click)="openAI(req, $event)">
+                ✦ Demander à Gemini IA
+              </button>
+            </div>
+          </div>
+
+        </div>
+      }
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination-wrap">
+        <div class="pagination-info">Page {{ currentPage }} sur {{ totalPages }} ({{ filteredRequirements.length }} résultats)</div>
+        <div class="pagination">
+          <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">← Précédent</button>
+          @for (page of pages; track $index) {
+            @if (page === -1) {
+              <span class="page-dots">…</span>
+            } @else {
+              <button class="page-btn page-num" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
+            }
+          }
+          <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Suivant →</button>
+        </div>
+      </div>
+    }
+  }
+
+  @if (!loading && requirements.length > 0 && filteredRequirements.length === 0) {
+    <div class="empty-state">Aucune exigence ne correspond à vos filtres.</div>
+  }
+</div>

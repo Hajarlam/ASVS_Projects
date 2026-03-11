@@ -1,0 +1,108 @@
+<div class="req-view">
+  <button class="back-btn" (click)="goBack()">← Back</button>
+
+  @if (loading) { <div class="loading-state">Loading requirement...</div> }
+  @if (error) { <div class="error-state">⚠️ {{ error }}</div> }
+
+  @if (!loading && requirement) {
+  <div class="req-card" [class.card-pass]="requirement.status === 'pass'"
+    [class.card-fail]="requirement.status === 'fail'" [class.card-na]="requirement.status === 'na'">
+
+    <div class="req-header">
+      <span class="req-id-badge">{{ requirement.id }}</span>
+      <span class="level-badge level-{{ requirement.asvsLevel }}">Level {{ requirement.asvsLevel }}</span>
+      @if (requirement.status) {
+      <span class="status-chip" [class]="'chip-' + requirement.status">
+        {{ requirement.status === 'pass' ? '✅ Pass' : requirement.status === 'fail' ? '❌ Fail' : '➖ N/A' }}
+      </span>
+      }
+    </div>
+
+    <h2 class="req-area-title">{{ requirement.area }}</h2>
+    <div class="req-body">{{ requirement.verificationRequirement }}</div>
+
+    <div class="meta-grid">
+      @if (requirement.cwe) {
+      <div class="meta-item cwe"><span class="meta-label">CWE</span><span class="meta-val">{{ requirement.cwe }}</span>
+      </div>
+      }
+      @if (requirement.nist) {
+      <div class="meta-item nist"><span class="meta-label">NIST</span><span class="meta-val">{{ requirement.nist
+          }}</span></div>
+      }
+    </div>
+
+    <!-- ✅ Pass / Fail / N/A Status -->
+    <div class="status-section">
+      <span class="status-label">Verification Result</span>
+      <div class="status-buttons">
+        <button class="status-btn pass-btn" [class.active]="requirement.status === 'pass'" (click)="setStatus('pass')">
+          <span class="btn-icon">✅</span>
+          <span class="btn-txt">Pass</span>
+          <span class="btn-desc">Requirement verified & implemented</span>
+        </button>
+        <button class="status-btn fail-btn" [class.active]="requirement.status === 'fail'" (click)="setStatus('fail')">
+          <span class="btn-icon">❌</span>
+          <span class="btn-txt">Fail</span>
+          <span class="btn-desc">Requirement not met / vulnerable</span>
+        </button>
+        <button class="status-btn na-btn" [class.active]="requirement.status === 'na'" (click)="setStatus('na')">
+          <span class="btn-icon">➖</span>
+          <span class="btn-txt">N/A</span>
+          <span class="btn-desc">Not applicable to this system</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Claude AI -->
+    <div class="ai-section">
+      <button class="btn-claude" (click)="openAI()" [disabled]="aiLoading">
+        @if (aiLoading) {
+        <span class="spin"></span> Gemini IA analyse...
+        } @else {
+        ✦ Demander à Gemini IA
+        }
+      </button>
+    </div>
+
+    @if (aiLoading) {
+    <div class="ai-loading"><span class="spin"></span> Analyzing requirement {{ requirement.id }}...</div>
+    }
+    @if (aiError) {
+    <div class="ai-error">⚠️ {{ aiError }}</div>
+    }
+    @if (aiResponse && !aiLoading) {
+    <div class="ai-response">
+      <div class="ai-response-header">
+        <div class="ai-response-title">✦ Gemini AI Analysis <span class="claude-badge">gemini-1.5-flash</span></div>
+        <button class="btn-close" (click)="aiResponse = ''">✕ Close</button>
+      </div>
+      <div class="ai-response-body">
+        <pre>{{ aiResponse }}</pre>
+      </div>
+    </div>
+    }
+
+    <!-- Notes and Evidence -->
+    <div class="user-inputs-grid">
+      <div class="notes-section">
+        <div class="notes-title">📝 Note d'Audit</div>
+        <textarea class="notes-textarea" [(ngModel)]="notes"
+          placeholder="Détails techniques, justification du statut..." rows="4"></textarea>
+        <button class="btn-save" (click)="saveNote()">
+          {{ noteSaved ? '✓ Sauvegardé' : 'Enregistrer Note' }}
+        </button>
+      </div>
+
+      <div class="evidence-section">
+        <div class="evidence-title">📎 Preuves & Liens (Evidence)</div>
+        <textarea class="evidence-textarea" [(ngModel)]="evidence"
+          placeholder="Lien vers Jira, GitLab, ou URLs de capture d'écran..." rows="4"></textarea>
+        <button class="btn-save" (click)="saveEvidence()">
+          {{ evidenceSaved ? '✓ Attaché' : 'Attacher Preuve' }}
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

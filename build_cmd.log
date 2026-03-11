@@ -1,0 +1,130 @@
+- Building...
+
+Browser bundles        
+Initial chunk files     | Names               |  Raw size | Estimated transfer size
+main-BEFNI7XJ.js        | main                | 721.22 kB |               146.17 kB
+polyfills-FFHMD2TL.js   | polyfills           |  33.71 kB |                11.02 kB
+styles-NTE27VUW.css     | styles              |  14.37 kB |                 1.77 kB
+
+                        | Initial total       | 769.29 kB |               158.95 kB
+
+
+Server bundles         
+Initial chunk files     | Names               |  Raw size
+server.mjs              | server              |   1.06 MB |                        
+chunk-VZJOUHES.mjs      | -                   | 776.42 kB |                        
+chunk-V7Z6TGSM.mjs      | -                   | 485.28 kB |                        
+polyfills.server.mjs    | polyfills.server    | 262.30 kB |                        
+chunk-IB3HBJ7K.mjs      | -                   |   3.04 kB |                        
+chunk-SK7OS3S2.mjs      | -                   |   2.80 kB |                        
+render-utils.server.mjs | render-utils.server | 223 bytes |                        
+main.server.mjs         | main.server         | 154 bytes |                        
+
+Lazy chunk files        | Names               |  Raw size
+chunk-EWW4DU7Y.mjs      | -                   |  66.74 kB |                        
+chunk-XQESV2LI.mjs      | index               |  20.50 kB |                        
+chunk-Z4FFCDJM.mjs      | index               |  15.12 kB |                        
+chunk-QVLHLOLJ.mjs      | xhr2                |  11.79 kB |                        
+chunk-PQKVCPG7.mjs      | multipart-parser    |   4.55 kB |                        
+
+Application bundle generation failed. [36.520 seconds]
+
+▲ [WARNING] bundle initial exceeded maximum budget. Budget 500.00 kB was not met by 269.29 kB with a total of 769.29 kB.
+
+
+▲ [WARNING] angular:styles/component:css;7ee03ce3ec3e2cbe027441c132649a5ea80fea0a9d34ffdef5846a6c8b74f5a8;C:/Users/hp/Downloads/asvs-v4-clean/asvs-enhanced/src/app/components/header/header.component.ts exceeded maximum budget. Budget 2.00 kB was not met by 3.52 kB with a total of 5.52 kB.
+
+
+▲ [WARNING] angular:styles/component:css;0d8f5690175880b9f71792946500cc862bf37855becaf6e765798b5f745e4b53;C:/Users/hp/Downloads/asvs-v4-clean/asvs-enhanced/src/app/components/ai-drawer/ai-drawer.component.ts exceeded maximum budget. Budget 2.00 kB was not met by 3.63 kB with a total of 5.63 kB.
+
+
+▲ [WARNING] angular:styles/component:css;cad716087bcf733a42300e2882fe2bf34c324a439b16498376d22ec756c7551f;C:/Users/hp/Downloads/asvs-v4-clean/asvs-enhanced/src/app/pages/about/about.component.ts exceeded maximum budget. Budget 2.00 kB was not met by 3 bytes with a total of 2.00 kB.
+
+
+▲ [WARNING] angular:styles/component:css;1cf04498b270ba9ff9a2659c6d302f3e038a4893cd5d9f9284660037b7e32402;C:/Users/hp/Downloads/asvs-v4-clean/asvs-enhanced/src/app/pages/login/login.component.ts exceeded maximum budget. Budget 2.00 kB was not met by 2.75 kB with a total of 4.75 kB.
+
+
+▲ [WARNING] angular:styles/component:css;a277d5f886dbd9eaa2235d70d2c1d60226d80ead915639b051843b97a9d5a592;C:/Users/hp/Downloads/asvs-v4-clean/asvs-enhanced/src/app/pages/admin/admin.component.ts exceeded maximum budget. Budget 2.00 kB was not met by 2.37 kB with a total of 4.37 kB.
+
+
+▲ [WARNING] src/app/pages/search-results/search-results.component.css exceeded maximum budget. Budget 2.00 kB was not met by 1.21 kB with a total of 3.21 kB.
+
+
+▲ [WARNING] src/app/pages/category-view/category-view.component.css exceeded maximum budget. Budget 2.00 kB was not met by 7.61 kB with a total of 9.61 kB.
+
+
+▲ [WARNING] src/app/pages/dashboard/dashboard.component.css exceeded maximum budget. Budget 2.00 kB was not met by 6.03 kB with a total of 8.03 kB.
+
+
+▲ [WARNING] src/app/pages/requirement-view/requirement-view.component.css exceeded maximum budget. Budget 2.00 kB was not met by 5.70 kB with a total of 7.70 kB.
+
+
+▲ [WARNING] src/app/pages/security/security.component.css exceeded maximum budget. Budget 2.00 kB was not met by 9.14 kB with a total of 11.14 kB.
+
+
+▲ [WARNING] src/app/pages/ai-chat/ai-chat.component.css exceeded maximum budget. Budget 2.00 kB was not met by 7.93 kB with a total of 9.93 kB.
+
+
+▲ [WARNING] Module 'debug' used by 'node_modules/https-proxy-agent/dist/index.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+
+▲ [WARNING] Module 'agent-base' used by 'node_modules/https-proxy-agent/dist/index.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+
+▲ [WARNING] Module 'node-domexception' used by 'node_modules/fetch-blob/from.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+
+▲ [WARNING] Module 'web-streams-polyfill/dist/ponyfill.es2018.js' used by 'node_modules/fetch-blob/streams.cjs' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+
+▲ [WARNING] Module 'p-retry' used by 'node_modules/@google/genai/dist/node/index.mjs' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+
+▲ [WARNING] Module 'google-auth-library' used by 'node_modules/@google/genai/dist/node/index.mjs' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+
+X [ERROR] angular:styles/component:css;7ee03ce3ec3e2cbe027441c132649a5ea80fea0a9d34ffdef5846a6c8b74f5a8;C:/Users/hp/Downloads/asvs-v4-clean/asvs-enhanced/src/app/components/header/header.component.ts exceeded maximum budget. Budget 4.00 kB was not met by 1.52 kB with a total of 5.52 kB.
+
+
+X [ERROR] angular:styles/component:css;0d8f5690175880b9f71792946500cc862bf37855becaf6e765798b5f745e4b53;C:/Users/hp/Downloads/asvs-v4-clean/asvs-enhanced/src/app/components/ai-drawer/ai-drawer.component.ts exceeded maximum budget. Budget 4.00 kB was not met by 1.63 kB with a total of 5.63 kB.
+
+
+X [ERROR] angular:styles/component:css;1cf04498b270ba9ff9a2659c6d302f3e038a4893cd5d9f9284660037b7e32402;C:/Users/hp/Downloads/asvs-v4-clean/asvs-enhanced/src/app/pages/login/login.component.ts exceeded maximum budget. Budget 4.00 kB was not met by 763 bytes with a total of 4.75 kB.
+
+
+X [ERROR] angular:styles/component:css;a277d5f886dbd9eaa2235d70d2c1d60226d80ead915639b051843b97a9d5a592;C:/Users/hp/Downloads/asvs-v4-clean/asvs-enhanced/src/app/pages/admin/admin.component.ts exceeded maximum budget. Budget 4.00 kB was not met by 381 bytes with a total of 4.37 kB.
+
+
+X [ERROR] src/app/pages/category-view/category-view.component.css exceeded maximum budget. Budget 4.00 kB was not met by 5.61 kB with a total of 9.61 kB.
+
+
+X [ERROR] src/app/pages/dashboard/dashboard.component.css exceeded maximum budget. Budget 4.00 kB was not met by 4.03 kB with a total of 8.03 kB.
+
+
+X [ERROR] src/app/pages/requirement-view/requirement-view.component.css exceeded maximum budget. Budget 4.00 kB was not met by 3.70 kB with a total of 7.70 kB.
+
+
+X [ERROR] src/app/pages/security/security.component.css exceeded maximum budget. Budget 4.00 kB was not met by 7.14 kB with a total of 11.14 kB.
+
+
+X [ERROR] src/app/pages/ai-chat/ai-chat.component.css exceeded maximum budget. Budget 4.00 kB was not met by 5.93 kB with a total of 9.93 kB.
+
+

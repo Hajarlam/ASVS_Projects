@@ -1,0 +1,21 @@
+{
+  "name": "asvs-backend",
+  "version": "1.0.0",
+  "description": "ASVS Backend with MCP Server + JWT Auth",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "zod": "^3.22.4",
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}
