@@ -33,7 +33,7 @@ export class AiService {
   // Créer gratuitement sur : https://aistudio.google.com/apikey
   // ══════════════════════════════════════════════════════════════
   private readonly apiKeys: string[] = [
-    'AIzaSyAjnc-XNbhl6J7CouhG0br9nwjNIfRduSs', // clé 1 — remplacer si épuisée
+    'AIzaSyD2MiJsNzkFrzUD8vZt1Am49fospZbwH10', // clé 1 — remplacer si épuisée
     // 'AIzaSy_VOTRE_CLE_2_ICI',                // clé 2 — décommenter et ajouter
     // 'AIzaSy_VOTRE_CLE_3_ICI',                // clé 3
   ];
