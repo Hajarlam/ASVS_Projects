@@ -126,10 +126,8 @@ function login(user, pass) {
         <div class="mcp-tool-chip">Tool: scan_repository</div>
       </div>
 
-      <!-- Séparateur -->
       <div class="mcp-inline-sep"></div>
 
-      <!-- Formulaire directement ici -->
       <div class="repo-scan-form">
         <div class="field">
           <label>Lien GitHub du repository</label>
@@ -179,7 +177,6 @@ function login(user, pass) {
     }
 
     @if (mcpRunning || scanStep >= 0 || mcpResult) {
-    <!-- Tracker -->
     <div class="mcp-tracker-wrap fade-in">
       <div class="mcp-progress-bg">
         <div class="mcp-progress-fill" [style.width.%]="(scanStep >= 0 ? (scanStep / scanSteps.length) * 100 : 0)">
@@ -320,7 +317,6 @@ function login(user, pass) {
     }
   </div>
 
-  <!-- ══ SECTION 3 : Statut systeme ══ -->
   <div class="section-divider">
     <div class="section-divider-line"></div>
     <span class="section-divider-label">Statut systeme</span>

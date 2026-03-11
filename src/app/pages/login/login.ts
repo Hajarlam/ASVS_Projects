@@ -11,7 +11,6 @@ import { AuthService } from '../../services/auth.service';
   template: `
     <div class="login-root" [class.light]="isLight">
 
-      <!-- Ambient background layers -->
       <div class="bg-layer bg-noise"></div>
       <div class="bg-layer bg-grid"></div>
       <div class="bg-orb orb-1"></div>

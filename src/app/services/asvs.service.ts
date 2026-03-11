@@ -186,7 +186,6 @@ export class AsvsService {
     this.saveUserData();
   }
 
-  // Legacy compat
   toggleComplete(requirementId: string) {
     const current = this.requirementStatuses.get(requirementId);
     if (current === 'pass') {

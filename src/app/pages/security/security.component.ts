@@ -15,28 +15,23 @@ import { HttpClient } from '@angular/common/http';
 })
 export class SecurityComponent implements OnInit {
 
-  // Tabs
   activeTab: 'scanner' | 'mcp' | 'status' = 'scanner';
 
-  // Code scanner
   code = '';
   language = 'javascript';
   scanResult = '';
   scanning = false;
   languages = ['javascript', 'typescript', 'python', 'java', 'php', 'csharp', 'go', 'ruby', 'sql'];
 
-  // MCP status
   mcpStatus: any = null;
   loadingStatus = false;
 
-  // MCP repository scan
   repoUrl = '';
   mcpResult = '';
   mcpError = '';
   mcpRunning = false;
   loadingMsg = '';
 
-  // Pipeline steps state
   scanComplete = false;
   scanStep = -1;
 
@@ -92,7 +87,6 @@ export class SecurityComponent implements OnInit {
     }
   ];
 
-  // Backend flags
   isBackend = false;
   isMcpBackendRoute = false;
   copiedIdx: number | null = null;
@@ -114,7 +108,6 @@ export class SecurityComponent implements OnInit {
     this.refreshBackendState();
     this.loadMcpStatus();
 
-    // Scroll vers la section si fragment #mcp présent dans l'URL
     if (this.isBrowser) {
       this.route.fragment.subscribe(fragment => {
         if (fragment) {
@@ -160,9 +153,6 @@ export class SecurityComponent implements OnInit {
     this.scanResult = '';
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // Appel Gemini direct — bypass aiService complètement
-  // ─────────────────────────────────────────────────────────────
   private async callGeminiDirect(repoUrl: string): Promise<string> {
     const API_KEY = (window as any).__GEMINI_KEY__
       || localStorage.getItem('gemini_api_key')
@@ -208,7 +198,6 @@ fix rapide
       }
     } catch { /* backend non dispo, on continue */ }
 
-    // Essai 2 : Gemini REST direct (si clé dispo)
     if (API_KEY) {
       try {
         const geminiRes = await fetch(
@@ -229,7 +218,6 @@ fix rapide
       } catch { /* clé invalide ou quota */ }
     }
 
-    // Fallback : rapport statique basé sur l'URL du repo
     const repoName = repoUrl.split('/').pop() || 'ce repository';
     const owner = repoUrl.split('/').slice(-2, -1)[0] || 'owner';
 
@@ -323,16 +311,12 @@ pip install safety && safety check
 *Pour une analyse dynamique complète avec accès au code source, activez le backend MCP.*`;
   }
 
-  // ─────────────────────────────────────────────────────────────
-  // runRepoScan — pipeline complet
-  // ─────────────────────────────────────────────────────────────
   async runRepoScan() {
     const repoUrl = this.repoUrl.trim();
     if (!repoUrl || this.mcpRunning) return;
 
     this.syncBackendFlags();
 
-    // Vérif outil MCP si backend actif
     if (this.isMcpBackendRoute && this.mcpStatus && Array.isArray(this.mcpStatus.tools)) {
       if (!this.mcpStatus.tools.includes('scan_repository')) {
         this.mcpError = 'Backend actif mais outil scan_repository introuvable. Redémarrez : cd backend && npm start';
@@ -352,7 +336,6 @@ pip install safety && safety check
 
     if (!this.isBrowser) { this.mcpRunning = false; return; }
 
-    // Messages de chargement rotatifs pour que l'utilisateur sache que ça travaille
     const loadingMessages = [
       'Connexion au backend MCP…',
       'Clonage du repository…',
@@ -368,7 +351,6 @@ pip install safety && safety check
       this.cdr.detectChanges();
     }, 2200);
 
-    // Pipeline visuel animé (parallèle)
     const simulatePipeline = async () => {
       const delays = [400, 600, 500, 400, 400, 500];
       for (let i = 0; i < this.scanSteps.length; i++) {
@@ -379,7 +361,6 @@ pip install safety && safety check
     };
     simulatePipeline();
 
-    // Toujours passer par executeMcpTool — il gère backend + fallback Gemini automatiquement
     try {
       const res = await this.aiService.executeMcpTool('scan_repository', { repoUrl });
       clearInterval(msgInterval);
@@ -432,29 +413,23 @@ pip install safety && safety check
   formatText(text: string): string {
     const safe = this.escapeHtml(text);
     return safe
-      // Headings
       .replace(/^#### (.*?)$/gm, '<h4 class="rt-h4">$1</h4>')
       .replace(/^### (.*?)$/gm, '<h3 class="rt-h3">$1</h3>')
       .replace(/^## (.*?)$/gm, '<h2 class="rt-h2">$1</h2>')
       .replace(/^# (.*?)$/gm, '<h1 class="rt-h1">$1</h1>')
-      // Bold / italic
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      // Inline code
       .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
-      // Severity badges auto-détectés
       .replace(/\b(Critical|Critique)\b/gi, '<span class="sev-badge sev-critical">$1</span>')
       .replace(/\b(High|Haute?)\b/gi, '<span class="sev-badge sev-high">$1</span>')
       .replace(/\b(Medium|Moyen(?:ne)?)\b/gi, '<span class="sev-badge sev-medium">$1</span>')
       .replace(/\b(Low|Faible)\b/gi, '<span class="sev-badge sev-low">$1</span>')
-      // Status icons in tables
       .replace(/✅/g, '<span class="st-ok">✓</span>')
       .replace(/❌/g, '<span class="st-fail">✗</span>')
       .replace(/⚠️/g, '<span class="st-warn">⚠</span>')
       .replace(/🔴/g, '<span class="st-crit">●</span>')
       .replace(/🟡/g, '<span class="st-warn">●</span>')
       .replace(/🟢/g, '<span class="st-ok">●</span>')
-      // Tables markdown → HTML
       .replace(/^\|(.+)\|$/gm, (row) => {
         const isSep = /^\|[\s\-:]+\|/.test(row);
         if (isSep) return '__TABLE_SEP__';
@@ -469,13 +444,10 @@ pip install safety && safety check
         return `<div class="rt-table-wrap"><table class="rt-table"><thead>${headHtml}</thead><tbody>${body.join('')}</tbody></table></div>`;
       })
       .replace(/__TABLE_SEP__\n?/g, '')
-      // HR
       .replace(/^---+$/gm, '<hr class="rt-hr">')
-      // Lists
       .replace(/^[-*] (.*?)$/gm, '<li>$1</li>')
       .replace(/^(\d+)\. (.*?)$/gm, '<li class="rt-ol"><span class="rt-num">$1</span>$2</li>')
       .replace(/(<li(?:\s[^>]*)?>[\s\S]*?<\/li>)/g, (m) => m)
-      // Paragraphs
       .replace(/\n\n+/g, '</p><p class="rt-p">')
       .replace(/\n/g, '<br>');
   }

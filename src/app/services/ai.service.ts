@@ -28,20 +28,15 @@ export interface ChatOptions {
 export class AiService {
   private isBrowser: boolean;
 
-  // ══════════════════════════════════════════════════════════════
-  // ROTATION DE CLÉS API — Ajouter des clés ici pour éviter quota
-  // Créer gratuitement sur : https://aistudio.google.com/apikey
-  // ══════════════════════════════════════════════════════════════
+  
   private readonly apiKeys: string[] = [
     'AIzaSyD2MiJsNzkFrzUD8vZt1Am49fospZbwH10', // clé 1 — remplacer si épuisée
-    // 'AIzaSy_VOTRE_CLE_2_ICI',                // clé 2 — décommenter et ajouter
-    // 'AIzaSy_VOTRE_CLE_3_ICI',                // clé 3
+    // 'AIzaSyBvRwyHSLxgGzxAD0BvobCBj1-Em9E4P8s',                // clé 2 — décommenter et ajouter
   ];
   private currentKeyIndex = 0;
-  private keyQuotaExhausted: Set<number> = new Set(); // clés épuisées cette session
+  private keyQuotaExhausted: Set<number> = new Set();
 
   private getNextAiClient(): { client: GoogleGenAI; keyIndex: number } {
-    // Chercher une clé non épuisée
     for (let i = 0; i < this.apiKeys.length; i++) {
       const idx = (this.currentKeyIndex + i) % this.apiKeys.length;
       if (!this.keyQuotaExhausted.has(idx)) {
@@ -49,7 +44,6 @@ export class AiService {
         return { client: new GoogleGenAI({ apiKey: this.apiKeys[idx] }), keyIndex: idx };
       }
     }
-    // Toutes épuisées → reset et réessayer avec la première
     this.keyQuotaExhausted.clear();
     this.currentKeyIndex = 0;
     return { client: new GoogleGenAI({ apiKey: this.apiKeys[0] }), keyIndex: 0 };
@@ -61,7 +55,6 @@ export class AiService {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
-  // ✅ FIX 1 — fetchWithTimeout ajouté ici
   private fetchWithTimeout(url: string, options: RequestInit, timeoutMs = 5000): Promise<Response> {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeoutMs);
@@ -139,7 +132,6 @@ export class AiService {
   ): Promise<any> {
     let lastError: any = null;
 
-    // Essayer chaque clé disponible
     for (let keyAttempt = 0; keyAttempt < this.apiKeys.length; keyAttempt++) {
       const { client, keyIndex } = this.getNextAiClient();
 
@@ -151,7 +143,6 @@ export class AiService {
           lastError = e;
           if (this.isQuotaError(e)) {
             const retryS = this.extractRetrySeconds(this.extractErrorMessage(e));
-            // Si retry court (quota minute ≤ 65s) → attendre et réessayer même clé
             if (retryS && retryS <= 65) {
               await this.sleep(retryS * 1000 + 500);
               try {
@@ -160,7 +151,6 @@ export class AiService {
                 lastError = e2;
               }
             }
-            // Clé épuisée → marquer et passer à la suivante
             this.keyQuotaExhausted.add(keyIndex);
             this.currentKeyIndex = (keyIndex + 1) % this.apiKeys.length;
             break;
@@ -177,7 +167,6 @@ export class AiService {
 
 
 
-  // Extrait le texte de la réponse Gemini (gère les 2 formats SDK)
   private getText(response: any): string {
     try {
       if (typeof response?.text === 'string' && response.text.trim()) return response.text.trim();
@@ -254,7 +243,7 @@ export class AiService {
     return /```[\s\S]*?```/.test(text || '');
   }
 
-  private closeOpenCodeFence(text: string): string {
+  private closeOpenCodeFence(text: string):   string {
     const t = (text || '').trim();
     if (!t) return '';
     const fences = (t.match(/```/g) || []).length;
@@ -265,20 +254,14 @@ export class AiService {
   private looksTruncatedAnswer(text: string): boolean {
     const t = (text || '').trim();
     if (!t) return true;
-    // Bloc code ouvert non fermé
     if ((t.match(/```/g) || []).length % 2 === 1) return true;
-    // Coupé sur ponctuation de liste/début de phrase
     if (/[,:;\-\/]\s*$/.test(t.slice(-60))) return true;
-    // Section commencée (VULN-XX, ##, numéro) mais sans contenu après
     if (/\*\*VULN-\d+\*\*\s*$/.test(t.slice(-60))) return true;
     if (/^#{1,4}\s+.{2,}$/m.test(t.slice(-120)) && t.split('\n').pop()?.match(/^#{1,4}\s/)) return true;
-    // Dernière ligne = texte coupé en plein mot (lettre finale, pas de ponctuation)
     const lines = t.split('\n').filter(l => l.trim());
     const lastLine = lines[lines.length - 1] || '';
     const prevLine = lines[lines.length - 2] || '';
-    // Si la dernière ligne ressemble à un début de section numérotée sans suite
     if (/^(\d+\.|[-*])\s+\S/.test(lastLine) && lines.length > 3) return true;
-    // Coupure en plein mot sur une ligne de prose (pas de fin de phrase)
     if (lastLine.length > 10 && /[a-zA-ZÀ-ÿ]$/.test(lastLine) && !/^[|#*`>]/.test(lastLine)) return true;
     return false;
   }
@@ -327,7 +310,6 @@ export class AiService {
     let output = this.closeOpenCodeFence(draft || '');
     if (!output || this.isHardErrorResponse(output)) return output;
 
-    // Toujours compléter si vraiment tronqué — skipContinuation n'empêche plus ça
     if (this.looksTruncatedAnswer(output)) {
       try {
         const continuationResp = await this.generateWithFallback(model => ({
@@ -687,7 +669,6 @@ Regles ABSOLUES:
       const query = cwe ? `CWE-${cwe}` : topic;
       if (!query) return 'Erreur: champ cwe ou topic requis.';
 
-      // Legacy backend has no dedicated endpoint for this tool; avoid /execute 404.
       return this.buildLocalSecurityInfoFallback(query);
     }
 
@@ -921,7 +902,6 @@ Format de reponse attendu :
     }
   }
 
-  // Analyse Gemini directe — vraie IA, toujours appelée si backend fallback/quota
   private async scanRepositoryWithGemini(repoUrl: string): Promise<string> {
     const parts = repoUrl.replace(/https?:\/\/github\.com\//i, '').split('/');
     const owner = parts[0] || 'owner';
@@ -990,7 +970,6 @@ Réponds UNIQUEMENT en français, format markdown strict, sans introduction:
     }
   }
 
-  // ✅ FIX 2 — executeMcpTool avec debug + scan_repository via fetchWithTimeout
   async executeMcpTool(tool: string, args: Record<string, any>): Promise<string> {
     if (!this.isBrowser) {
       return 'Erreur: MCP indisponible en mode SSR.';
@@ -998,16 +977,13 @@ Réponds UNIQUEMENT en français, format markdown strict, sans introduction:
 
     await this.auth.refreshBackendAvailability();
 
-    // DEBUG temporaire - retire après fix
     console.log('Backend mode:', this.auth.isBackendMode());
     console.log('Token:', this.auth.getToken());
 
-    // ✅ scan_repository : backend d'abord, Gemini direct si fallback/quota
     if (tool === 'scan_repository') {
       const repoUrl = String(args?.['repoUrl'] || '').trim();
       if (!repoUrl) return 'Erreur: champ repoUrl requis.';
 
-      // Mots-clés qui signalent un fallback statique du backend (pas une vraie analyse IA)
       const isFallbackResponse = (text: string): boolean => {
         const t = (text || '').toLowerCase();
         return t.includes('fallback sans ia')
@@ -1019,7 +995,6 @@ Réponds UNIQUEMENT en français, format markdown strict, sans introduction:
           || (t.includes('fichiers inspectes') && t.includes('verification manuelle'));
       };
 
-      // Tentative backend MCP
       try {
         const res = await this.fetchWithTimeout(`${BACKEND_URL}/api/mcp/public/scan-repository`, {
           method: 'POST',
@@ -1032,14 +1007,12 @@ Réponds UNIQUEMENT en français, format markdown strict, sans introduction:
         try { data = JSON.parse(raw); } catch {}
 
         const result = data?.result || '';
-        // Retourner seulement si c'est une vraie réponse IA (pas un fallback statique)
         if (res.ok && this.isUsableResult(result) && !isFallbackResponse(result)) {
           return result;
         }
-        // Sinon tomber sur Gemini direct ci-dessous
-      } catch { /* backend timeout ou offline → Gemini direct */ }
+            } catch { /* backend timeout ou offline → Gemini direct */ }
 
-      // Gemini direct — vraie analyse IA garantie
+      
       return await this.scanRepositoryWithGemini(repoUrl);
     }
 
@@ -1051,7 +1024,6 @@ Réponds UNIQUEMENT en français, format markdown strict, sans introduction:
       }
     }
 
-    // Prefer legacy MCP endpoints when available to avoid /api/mcp/execute 404 on older backends.
     try {
       const legacy = await this.executeMcpToolBackendLegacy(tool, args);
       if (legacy !== null) {
