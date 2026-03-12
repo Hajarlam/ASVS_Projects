@@ -30,8 +30,8 @@ export class AiService {
 
   
   private readonly apiKeys: string[] = [
-    'AIzaSyCzfQGh1AnjeoQOx91pgbwJPYT4hKqy1c0', // clé 1 — remplacer si épuisée
-    // 'AIzaSyCZz6paDPqNro-EppiCDQQHS1QB7ZEtZW4',                // clé 2 — décommenter et ajouter
+    'AIzaSyA4IVlDQR4XLtev48gLq1gp4iimI7YlQcU', // clé 1 — remplacer si épuisée
+    // 'AIzaSyCQA9r2bnr8uH6LPaktX9gz_zFWmsXNF6k',                // clé 2 — décommenter et ajouter
   ];
   private currentKeyIndex = 0;
   private keyQuotaExhausted: Set<number> = new Set();
